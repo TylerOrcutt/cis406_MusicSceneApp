@@ -87,6 +87,7 @@ public void printContent(){
                         String txt = "";
                         String title = "";
                         String Surl = "";
+                    String desc="";
                     String imgUrl="";
                         RSSObject obj = null;
                         Log.i("Parser", "PARSING XML");
@@ -108,6 +109,10 @@ public void printContent(){
                                     title = txt;
                                     continue;
                                 }
+                                if (tag.equalsIgnoreCase("description")) {
+                                    desc = txt;
+                                    continue;
+                                }
                                 if (tag.equalsIgnoreCase("link")) {
                                     // if(title.contains("RollingStone.com")){
                                     //  continue;
@@ -122,6 +127,7 @@ public void printContent(){
                                     obj.title = title;
                                     obj.url = Surl;
                                     obj.imageUrl=imgUrl;
+                                    obj.description =desc;
                                     newsStories.add(obj);
                                     obj = null;
 

@@ -11,7 +11,9 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/listViewImageView"
         android:layout_toEndOf="@+id/listViewImageView"
-        android:maxHeight="100sp" />
+        android:maxHeight="100sp"
+        android:paddingLeft="10dp"
+        android:paddingRight="5dp" />
 
     <ImageView
         android:layout_width="wrap_content"

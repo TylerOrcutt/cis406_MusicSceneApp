@@ -11,6 +11,7 @@ public class RSSObject {
     public String imageUrl="";
     public String news="";
     public Bitmap bitmap;
+    public String description;
 
     public RSSObject(){}
     public RSSObject(String title, String url, String imageUrl,String news){

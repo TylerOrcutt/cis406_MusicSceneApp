@@ -1,12 +1,22 @@
 package edu.cis406.musicsceneapp_orcutt;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,36 +31,54 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        parser =new RSSParser(this,feedUrl);
-        parser.DownloadRSS();
-      while(!parser.threadComplete){}
-        parser.DownloadImages();
-        while(!parser.threadComplete){}
-        ArrayList<String> listitems = new ArrayList<String>();
-        listitems.add("tst");
-        UpdateList();
+        ConnectivityManager con = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network = con.getActiveNetworkInfo();
+        if(network ==null ){
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setMessage("Internet connection is required for this app.");
+            alert.setTitle("Error");
+            alert.setPositiveButton("Ok",null);
+            alert.create().show();
+           // this.onDestroy();
+            return;
+        }
+if(network.isConnected()) {
+    parser = new RSSParser(this, feedUrl);
+    parser.DownloadRSS();//too lazy to do this async
+    while (!parser.threadComplete) {
+    }
+    parser.DownloadImages();//^
+    while (!parser.threadComplete) {
+    }
 
+    UpdateList();
+}
 
     }
     public void UpdateList(){
-       // ArrayList<String> listitems = new ArrayList<String>();
-      //  listitems.add("tst");
-
-        Log.i("MAIN","UPDATING LIST");
+          Log.i("MAIN","UPDATING LIST");
         ListView listView = (ListView)findViewById(R.id.listViewMain);
         ArrayList<ListItem> items = new ArrayList<ListItem>();
         ArrayList<RSSObject> rssObjects = parser.getRSSObjects();
 
                 for(int i=0;i<rssObjects.size();i++){
-                    items.add(new ListItem(rssObjects.get(i).title,rssObjects.get(i).imageUrl,rssObjects.get(i).bitmap));
+                    items.add(new ListItem(rssObjects.get(i).title,rssObjects.get(i).imageUrl,rssObjects.get(i).bitmap,rssObjects.get(i).description,rssObjects.get(i).url));
 
                 }
 
 
-
-        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.list_item,R.id.listViewTextView);
-        ListItemAdapter adapter = new ListItemAdapter(this,R.layout.list_item,items);
+        final ListItemAdapter adapter = new ListItemAdapter(this,R.layout.list_item,items);
          listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent nv= new Intent(view.getContext(),ArticleView.class);
+                nv.putExtra("title",adapter.getViewItem(position).getTitle());
+                nv.putExtra("description", adapter.getViewItem(position).getDescription());
+                nv.putExtra("URL", adapter.getViewItem(position).getLinkUrl());
+                startActivity(nv);
+            }
+        });
 
 
     }
